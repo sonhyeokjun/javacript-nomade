@@ -405,3 +405,78 @@ link.addEventListener("click", handleLinkClick);
 // 해당 이벤트가 발생시킨 정보들에 대한 object들을 볼 수 있다!
 // 이때 해당 이벤트가 가진 기본 Default값을 발생시키지 않기 하게 위해선 preventDefault를 이용하여 막을 수 있다!
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const toDoForm = document.getElementById("todo-form");
+const toDoInput = document.querySelector("#todo-form input");
+const toDoList = document.getElementById("todo-list");
+
+const TODOS_KEY = "todos";
+
+let toDos = [];
+
+function saveToDos() {                                          ////7-8-5-1 toDO들을 로컬스토라지에 넣어준다 
+  localStorage.setItem(TODOS_KEY, JSON.stringify(toDos));       ////7-8-5-2 투두들을 JSON.stringi fy로 문자열로 만들어준다
+}
+
+function deleteToDo(event) {                                    //7-8-1 이벤트 인수로받아 deleteToDo실행
+  const li = event.target.parentElement;                        //7-8-2   이벤트 타겟인 버튼의 부모요소인 li생성
+  li.remove();                                                  //7-8-3   li 삭제 (아직자료는 남아있다.)
+  toDos = toDos.filter((toDo) => toDo.id !== parseInt(li.id));  //7-8-4      이벤트 타겟인 버튼의 li 아이디값과 다를경우 todos값 새로만들기
+  saveToDos();                                                          //7-8-5  로컬스토러지의 저장되는 함수 실행                                                              
+}
+
+function paintToDo(newTodo) {                   //7-1 newTodoObj를 인수로 꽂아준다
+  const li = document.createElement("li");      // 7-2  li 엘리먼트 생성 
+  li.id = newTodo.id;                                  //7-3  li의 id값을 newTodoObj의 id값으로 만들어준다
+  const span = document.createElement("span");        //7-4  span 엘리먼트 생성
+  span.innerText = newTodo.text;                     //7-5  스팬 안에텍스트를 newTodoObj의 텍스트값으로 만들어준다
+  const button = document.createElement("button");      //7-6 버튼 엘리먼튼 생성
+  button.innerText = "❌";                             //7-7  버튼 모양 만들기
+  button.addEventListener("click", deleteToDo);        //7-8   버튼이 클릭되면 deleteToDo함수 실행
+  li.appendChild(span);                                //7-9   li 엘리먼트에 자식span붙이기
+  li.appendChild(button);                              //7-10   li 엘리먼트에 자식button붙이기
+  toDoList.appendChild(li);                            //7-11   toDoList에 자식 li붙이기
+}
+
+function handleToDoSubmit(event) {
+  event.preventDefault();      //2.todo가 서브밋되서 리셋되는거 event를 이용해서 막아준다
+  const newTodo = toDoInput.value;  //3. 투두입력란의 값을 newTodo라는 변수에 꽂아준다
+  toDoInput.value = "";             //4. 투두입력란의 값을 빈값으로 만들어준다
+  const newTodoObj = {              //5. newTodoObj라는 객체를 만들어서 그안에  투두입력란의값을 텍스트프로펄티 , 입력한시간정보는 id프로펄티에 입력해준다.
+    text: newTodo,
+    id: Date.now(),
+  };
+  toDos.push(newTodoObj);       //6. 미리만들어둔 toDos 의배열안에  newTodoObj값을 집어넣어준다
+  paintToDo(newTodoObj);        //7. paintToDo라는 함수에 newTodoObj값을 넣어서 실행해준다
+  saveToDos();                  //8. saveToDos라는 로컬스토러지에 저장하는 함수를 실행해준다
+}
+
+toDoForm.addEventListener("submit", handleToDoSubmit); //1.todo입력란에 무언가를 서브밋하면 handleToDoSubmit함수가 실행된다.
+
+const savedToDos = localStorage.getItem(TODOS_KEY);     //로컬스토러지에 저장된 스트링화된 배열들의 아이템을 가져온다
+
+if (savedToDos !== null) {                      /// 로컨스토러지에 저장된 스트링화된 배열이 빈값이 아니라면>????  
+  const parsedToDos = JSON.parse(savedToDos);   /// 단순한 스트링을 살아있는 array로 만들어준다   
+  toDos = parsedToDos;              ///todo들을  배열로바뀐투두들로 바꿔준다
+  parsedToDos.forEach(paintToDo);    ////forEach 는 array의 각item에대해 function을 실행하게 해준다
+}
+
+
+
+
+
+
